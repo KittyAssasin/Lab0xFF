@@ -14,6 +14,21 @@ public class Path {
     public int getVertexCount() {return vertexes.length;}
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Path) {
+            if (this.getCost() != ((Path) obj).getCost())
+                return false;
+            if (this.getVertexCount() != ((Path) obj).getVertexCount())
+                return false;
+            for (int i = 0; i < this.vertexes.length; i++)
+                if (this.vertexes[i] != ((Path) obj).vertexes[i])
+                    return false;
+            return true;
+        } else
+            return false;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Path{");

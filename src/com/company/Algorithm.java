@@ -1,6 +1,8 @@
 package com.company;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class Algorithm {
 
@@ -63,30 +65,52 @@ public class Algorithm {
     //initializer and public function
     public static Path dynamicTSP(Graph g) {
         int[] vertexes = new int[g.getVertexCount()];
-        vertexes[0] = 1; //home (0) is the first vertex
-        return dynamicTSPRecursive(g, 0, 1, 0, vertexes);
+        Path p = new Path(vertexes, 0);
+        ArrayList<Path> LUT = new ArrayList<>();
+
+        Path minPath =  dynamicTSPRecursive(g, 0, 1, p, LUT);
+
+        int numVertexes = minPath.getVertexCount();
+        int[] minVertexes = minPath.getVertexes();
+        int[] results = new int[numVertexes - 1];
+        for (int i = 1; i < numVertexes; i++) //vertex:order -> order:vertex (not including 0)
+            results[i-1] = Helpers.indexOf(minVertexes, i);
+        return new Path(results, minPath.getCost());
     }
 
     //recursive internals
-    private static Path dynamicTSPRecursive(Graph g, int startV, int step, double cost, int[] vertexes) {
-        int numVertexes = vertexes.length;
+    private static Path dynamicTSPRecursive(Graph g, int startV, int currentStep, Path currentPath, ArrayList<Path> LUT) {
+        //lookup table check for this next path
+        int[] nextVertexes = Arrays.copyOf(currentPath.getVertexes(), currentPath.getVertexCount());
+        nextVertexes[startV] = currentStep;
+        for (Path p : LUT) {
+            if (Helpers.sameArray(p.getVertexes(), nextVertexes))
+                return p;
+        }
+
+        int numVertexes = currentPath.getVertexCount();
+        int[] vertexes = Arrays.copyOf(currentPath.getVertexes(), currentPath.getVertexCount());
+        double currentCost = currentPath.getCost();
 
         //exit condition
         if (!Helpers.hasZeroElement(vertexes)) {
-            int[] results = new int[numVertexes - 1];
-            for (int i = 2; i <= numVertexes; i++)
-                results[i-2] = Helpers.indexOf(vertexes, i); //vertex:order -> order:vertex (not including 0)
-            return new Path(results, cost + g.getEdgeWeight(startV, 0)); //cost of returning home
+            double solutionCost = currentCost + g.getEdgeWeight(startV, 0);
+            Path solution = new Path(vertexes, solutionCost);
+            LUT.add(solution);
+            return solution;
         }
 
+        //generating paths and recursively calling
         Path cheapestPath = new Path(null, Double.MAX_VALUE);
-        for (int i = 1; i < numVertexes; i++)
+        for (int i = 0; i < numVertexes; i++) {
             if (vertexes[i] == 0) {
-                int[] visitedVertexes = Arrays.copyOf(vertexes, vertexes.length); //cant be shallow passing the array
-                visitedVertexes[i] = step + 1;
-                Path newPath = dynamicTSPRecursive(g, i, step + 1, cost + g.getEdgeWeight(startV, i), visitedVertexes);
+                int[] nextVs = Arrays.copyOf(currentPath.getVertexes(), currentPath.getVertexCount());
+                nextVs[i] = currentStep;
+                Path newPath = dynamicTSPRecursive(g, i, currentStep + 1, new Path(nextVs,
+                        currentCost + g.getEdgeWeight(Helpers.indexOf(nextVs, currentStep - 1), i)), LUT);
                 cheapestPath = (newPath.getCost() < cheapestPath.getCost() ? newPath : cheapestPath);
             }
+        }
 
         return cheapestPath;
     }
