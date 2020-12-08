@@ -32,4 +32,8 @@ public class Helpers {
     public static double circularGraphIndividualCost(int numVertexes, double radius) {
         return 2 * radius * Math.cos((Math.PI * (0.5 * numVertexes - 1)) / numVertexes);
     }
+
+    public static double nanoToSeconds(long nanoSeconds) {
+        return nanoSeconds / 1_000_000_000.0;
+    }
 }

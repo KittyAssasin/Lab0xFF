@@ -64,39 +64,29 @@ public class Algorithm {
     public static Path dynamicTSP(Graph g) {
         int[] vertexes = new int[g.getVertexCount()];
         vertexes[0] = 1; //home (0) is the first vertex
-        return dynamicTSPRecursive(g, 0, 0, vertexes);
+        return dynamicTSPRecursive(g, 0, 1, 0, vertexes);
     }
 
     //recursive internals
-    private static Path dynamicTSPRecursive(Graph g, int startV, double cost, int[] vertexes) {
-        int numRemaining = 0;
+    private static Path dynamicTSPRecursive(Graph g, int startV, int step, double cost, int[] vertexes) {
         int numVertexes = vertexes.length;
-        for (int j : vertexes)
-            if (j == 0)
-                numRemaining++;
 
         //exit condition
-        if (numRemaining == 0) {
+        if (!Helpers.hasZeroElement(vertexes)) {
             int[] results = new int[numVertexes - 1];
             for (int i = 2; i <= numVertexes; i++)
                 results[i-2] = Helpers.indexOf(vertexes, i); //vertex:order -> order:vertex (not including 0)
             return new Path(results, cost + g.getEdgeWeight(startV, 0)); //cost of returning home
         }
 
-        Path[] paths = new Path[numRemaining];
-        int k = 0;
+        Path cheapestPath = new Path(null, Double.MAX_VALUE);
         for (int i = 1; i < numVertexes; i++)
             if (vertexes[i] == 0) {
                 int[] visitedVertexes = Arrays.copyOf(vertexes, vertexes.length); //cant be shallow passing the array
-                visitedVertexes[i] = numVertexes - numRemaining + 1;
-                paths[k] = dynamicTSPRecursive(g, i, cost + g.getEdgeWeight(startV, i), visitedVertexes);
-                k++;
+                visitedVertexes[i] = step + 1;
+                Path newPath = dynamicTSPRecursive(g, i, step + 1, cost + g.getEdgeWeight(startV, i), visitedVertexes);
+                cheapestPath = (newPath.getCost() < cheapestPath.getCost() ? newPath : cheapestPath);
             }
-
-        Path cheapestPath = paths[0];
-        for (int i = 1; i < paths.length; i++)
-            if (paths[i].getCost() < cheapestPath.getCost())
-                cheapestPath = paths[i];
 
         return cheapestPath;
     }
