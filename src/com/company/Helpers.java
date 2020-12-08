@@ -20,12 +20,37 @@ public class Helpers {
         return false;
     }
 
+    public static int countZeroElements(int[] array) {
+        int count = 0;
+        for (int j : array)
+            if (j == 0)
+                count++;
+        return count;
+    }
+
+    public static void printArray(int[] array){
+        System.out.print("[");
+        for (int j : array)
+            System.out.print(j + ",");
+        System.out.println("]");
+    }
+
     //returns the index of the key or -1 if not found
     public static int indexOf(int[] array, int key) {
         for (int i = 0; i < array.length; i++)
             if (array[i] == key)
                 return i;
         return -1;
+    }
+
+    //array compare
+    public static boolean sameArray(int[] array1, int[] array2) {
+        if (array1.length != array2.length)
+            return false;
+        for (int i = 0; i < array1.length; i++)
+            if (array1[i] != array2[i])
+                return false;
+        return true;
     }
 
     //quick maths
