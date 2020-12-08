@@ -101,7 +101,7 @@ public class Test {
         }
 
         //Printing Results
-        System.out.println("---- Results in nanoseconds with vertex min of " + rMin + " and max of " + rMax + " ----");
+        System.out.println("---- Results in nanoseconds of N vertex count graphs ----");
         String headerFormat = "%3s| %12s | %12s | %12s\n";
         String rowFormat = "%3d| %12d | %12d | %12f\n";
 
